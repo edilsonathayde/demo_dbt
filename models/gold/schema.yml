@@ -1,0 +1,74 @@
+version: 2
+
+models:
+  - name: fact_bet_analysis
+    description: "Tabela fato com análise consolidada de apostas"
+    columns:
+      - name: date_key
+        description: "Chave estrangeira para a dimensão de datas"
+        tests:
+          - relationships:
+              to: ref('gold_dim_date')
+              field: date_key
+      - name: player_id
+        description: "Chave estrangeira para a dimensão de jogadores"
+        tests:
+          - relationships:
+              to: ref('gold_dim_players')
+              field: player_id
+      - name: bet_amount_usd
+        description: "Valor apostado em USD"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "bet_amount_usd > 0"
+      - name: profit_usd
+        description: "Lucro da casa em USD"
+        tests:
+          - not_null
+      - name: exchange_rate_on_date
+        description: "Cotação do dólar na data da aposta"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "exchange_rate_on_date > 0"
+      - name: bet_amount_brl_on_date
+        description: "Valor apostado em BRL com a taxa do dia"
+        tests:
+          - not_null
+      - name: profit_brl_on_date
+        description: "Lucro em BRL com a taxa do dia"
+        tests:
+          - not_null
+
+  - name: gold_dim_currency
+    description: "Dimensão com cotações do dólar"
+    columns:
+      - name: date_key
+        description: "Data da cotação"
+        tests:
+          - not_null
+      - name: exchange_rate_brl
+        description: "Taxa de câmbio USD para BRL"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "exchange_rate_brl > 0"
+
+  - name: gold_dim_date
+    description: "Dimensão de datas"
+    columns:
+      - name: date_key
+        description: "Chave primária da dimensão"
+        tests:
+          - unique
+          - not_null
+
+  - name: gold_dim_players
+    description: "Dimensão de jogadores"
+    columns:
+      - name: player_id
+        description: "Chave primária do jogador"
+        tests:
+          - unique
+          - not_null

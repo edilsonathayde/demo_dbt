@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: silver_bet_data
+    description: "Tabela Silver com dados de apostas tratados"
+    columns:
+      - name: date_parsed
+        description: "Data da aposta"
+        tests:
+          - not_null
+      - name: players
+        description: "Identificador do jogador"
+        tests:
+          - not_null
+      - name: bet_amount_usd
+        description: "Valor apostado em USD"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "bet_amount_usd > 0"
+      - name: profit_usd
+        description: "Lucro da casa em USD"
+        tests:
+          - not_null
+
+  - name: silver_exchange_rate
+    description: "Tabela Silver com taxas de câmbio processadas"
+    columns:
+      - name: exchange_date
+        description: "Data da cotação do dólar"
+        tests:
+          - not_null
+      - name: exchange_rate_brl
+        description: "Valor da cotação USD para BRL"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "exchange_rate_brl > 0"
